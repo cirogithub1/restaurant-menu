@@ -29,7 +29,7 @@ export default function WelcomeScreen() {
 		setTimeout(() => ringPaddingOut.value = withSpring(ringPaddingOut.value + hp(5.5)), 600)
 		setTimeout(() => fontSize1.value = withSpring(fontSize1.value + hp(7)), 700)
 
-		setTimeout(() => navigation.navigate("Home"), 2500)
+		setTimeout(() => navigation.navigate("Home"), 3000)
 	}, [])	
 
 	return (

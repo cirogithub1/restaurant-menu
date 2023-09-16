@@ -1,17 +1,61 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { View, Text, ScrollView, Image, TextInput } from 'react-native'
 import { StatusBar  } from 'expo-status-bar'
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen'	
 import { BellAlertIcon, MagnifyingGlassIcon } from 'react-native-heroicons/outline'
+import axios from 'axios'
 
-import Categories from '../components/Categories'
+import Menus from '../components/Menus'
+import Recipes from '../components/Recipes'
 
 export default function HomeScreen() {
-	const [activeCat, setActiveCat] = useState("")
+	const [activeMenu, setActiveMenu] = useState("")
+	const [menus, setMenus] = useState([])
+	const [recipes, setRecipes] = useState([])
+
+	const getMenus = async () => {
+		try {			
+			const resp = await axios.get("https://restaurant-admin-amber.vercel.app/api/e72de13c-c6a1-4026-88da-3ae7d0ea7e55/billboards")
+
+			// console.log("/components/Menus.tsx / resp", resp.data)
+			if (resp.data) {
+				setMenus(resp.data)
+			}
+			
+		} catch (error) {
+			console.log('/getMenus/ error: ', error)
+		}
+	}
+
+	const changeMenu = (menu: any) => {
+		getRecipes(menu)
+		setActiveMenu(menu)
+		setRecipes([])
+	}
+
+	const getRecipes = async (category="Desserts") => {
+		try {			
+			const resp = await axios.get(`https://themealdb.com/api/json/v1/1/filter.php?c=${category}`)
+
+			// console.log("/components/Recipes.tsx / resp", resp.data)
+			if (resp.data.meals) {
+				setRecipes(resp.data.meals)
+			}
+			
+		} catch (error) {
+			console.log('/getRecipes/ error: ', error)
+		}
+	}
+
+	useEffect(() => {
+		getMenus()
+		getRecipes()
+	}, [])
 
 	return (
 		<View className='flex-1 bg-white'>
 			<StatusBar style='dark'/>
+			
 			<ScrollView
 				className='space-y-6 pt-8'
 				showsVerticalScrollIndicator={false}
@@ -60,13 +104,16 @@ export default function HomeScreen() {
 					</View>
 				</View>
 
-				{/* categories */}
+				{/* Menus */}
 				<View>
-					<Categories activeCat={activeCat} setActiveCat={setActiveCat} />
+					<Menus activeMenu={activeMenu} changeMenu={changeMenu} menus={menus}/>
 				</View>
 
+				{/* recipies */}
+				<View>
+					<Recipes recipes={recipes} menus={menus}/>
+				</View>
 			</ScrollView>
-			<Text>Home Screen</Text>
 		</View>
 	)
 }
